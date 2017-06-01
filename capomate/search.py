@@ -8,10 +8,6 @@ import re
 import sys
 import scipy
 
-import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
-from matplotlib.animation import FuncAnimation
-
 from sklearn.metrics import zero_one_loss, mean_squared_error, mean_absolute_error
 from sklearn.svm import SVC
 from sklearn.linear_model import LinearRegression

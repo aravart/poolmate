@@ -1,9 +1,9 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name='capomate',
-    version='0.1alpha',
-    packages=find_packages(),
+    version='0.1a0',
+    packages=['capomate'],
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
@@ -11,5 +11,12 @@ setup(
         "Natural Language :: English",
     ],
     license='MIT License',
+    install_requires=[
+        'pandas',
+        'numpy',
+        'tqdm',
+        'scipy',
+        'sklearn',
+    ],
     long_description=open('README.md').read(),
 )

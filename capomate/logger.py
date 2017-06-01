@@ -73,10 +73,11 @@ class Logger(object):
         # jsondate = field._to_json(datetime.date.today())
         # self.update(table, id, {'experiment': id, 'date': jsondate})
         id = uuid4().hex
-        field = DateField()
-        jsondate = field._to_json(datetime.date.today())
+        # field = DateField()
+        # jsondate = field._to_json(datetime.date.today())
         exp = dict(options)
-        exp.update({'experiment': id, 'date': jsondate})
+        # exp.update({'experiment': id, 'date': jsondate})
+        exp.update({'experiment': id})
         exp['elapsed'] = time.time()
         # self.insert(table, record)
 
