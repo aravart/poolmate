@@ -127,8 +127,7 @@ def main():
                         required=True)
     parser.add_argument("--proposals",
                         type=int,
-                        help='Number of proposals to consider at each search iteration',
-                        required=True)
+                        help='Number of proposals to consider at each search iteration')
     parser.add_argument("--seed",
                         type=int,
                         help='Random seed',
@@ -143,6 +142,8 @@ def main():
     options.no_progress = False
     options.attention_budget = -1
     options.filename = None
+    if options.proposals is None:
+        options.proposals = options.search_budget / options.teaching_budget
 
     # Get candidate pool
     with open(options.candidate_pool_filename) as f:
