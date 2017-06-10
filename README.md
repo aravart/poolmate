@@ -30,6 +30,8 @@ Dependencies can be installed with
 pip install numpy pandas scipy sklearn tqdm
 ```
 
+This project has been tested with Python 2.7.
+
 ## Usage
 
 ``` python capomate/teach.py --candidate-pool-filename
@@ -81,6 +83,6 @@ For example, a command-line invocation with all required parameters set might lo
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](License) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 
