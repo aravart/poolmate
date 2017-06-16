@@ -142,8 +142,6 @@ def main():
     options.no_progress = False
     options.attention_budget = -1
     options.filename = None
-    if options.proposals is None:
-        options.proposals = options.search_budget / options.teaching_budget
 
     # Get candidate pool
     with open(options.candidate_pool_filename) as f:
@@ -151,6 +149,9 @@ def main():
     instance = ((candidate_pool, candidate_pool),
                 ([], []),
                 ([], []))
+
+    if options.proposals is None:
+        options.proposals = len(candidate_pool) / options.teaching_budget
 
     log = Logger()
     log.store_instance = False
