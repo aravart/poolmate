@@ -81,6 +81,26 @@ For example, a command-line invocation with all required parameters set might lo
         --teaching-set-size 10                       \
         --search-budget 10000
 
+## FAQ
+
+### My learner is a MATLAB function? How can `capomate` call a MATLAB function?
+
+One method is to wrap the call to MATLAB into a shell script. For example, let's say your MATLAB function is
+
+    function [ output_args ] = my_learner(FILE1, FILE2)
+
+Create the file `my_learner.sh`
+
+    #!/bin/sh
+    
+    matlab -nodesktop -nosplash -nodisplay -r "my_learner $1 $2; quit" >/dev/null 2>/dev/null
+
+Be sure to set the script's permissions with
+
+    chmod +x my_learner.sh
+
+And then you can call it by setting `--loss-executable ./my_learner.sh`.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
