@@ -133,7 +133,77 @@ class UniformJumping(Algorithm):
         self.accept_best(model, loss, set)
 
 
-class Greedy(Algorithm):
+class RandomIndexGreedySwap(Algorithm):
+    def __init__(self,
+                 random,
+                 pool_size,
+                 teaching_budget,
+                 initial_training_set,
+                 logger,
+                 search_budget):
+        super(RandomIndexGreedySwap, self).__init__(random,
+                                                    pool_size,
+                                                    teaching_budget,
+                                                    initial_training_set,
+                                                    logger)
+        self.search_budget = search_budget
+        self.current_set = None
+        self.current_model = None
+        self.current_loss = None
+        self.models_to_fetch = []
+        self.models_fetched = []
+        self.step = 0
+
+    def fill_models_to_fetch(self):
+        idx = self.random.randint(0, self.teaching_budget)
+        if self.step + self.pool_size > self.search_budget:
+            rng = self.random.choice(self.pool_size,
+                                     size = self.search_budget - self.step,
+                                     replace=False).tolist()
+        else:
+            rng = range(pool_size)
+        for n in rng:
+            ns = self.current_set[0:idx] + \
+                 [n] + \
+                 self.current_set[idx+1:]
+            self.models_to_fetch.append(ns)
+
+    def next_fit_request(self):
+        if not self.current_set:
+            self.current_set = self.initial_training_set()
+            return self.current_set
+        else:
+            if self.models_to_fetch:
+                return self.models_to_fetch.pop()
+            else:
+                self.models_fetched = []
+                self.fill_models_to_fetch()
+                return self.models_to_fetch.pop()
+
+    def next_fit_result(self, model, loss, set):
+        self.step += 1
+        print model
+        if not self.current_loss:
+            self.current_model = model
+            self.current_loss = loss
+            self.logger.current_set(current_set=self.current_set,
+                                    current_loss=self.current_loss)
+        else:
+            self.models_fetched.append((model, loss, set))
+            if not self.models_to_fetch:
+                for m, l, s in self.models_fetched:
+                    if l < self.current_loss:
+                        self.current_model = m
+                        self.current_loss = l
+                        self.current_set = s
+                self.logger.current_set(current_set=self.current_set,
+                                        current_loss=self.current_loss)
+                self.accept_best(self.current_model,
+                                 self.current_loss,
+                                 self.current_set)
+
+
+class GreedyAdd(Algorithm):
     def __init__(self,
                  random,
                  pool_size,
@@ -141,7 +211,7 @@ class Greedy(Algorithm):
                  initial_training_set,
                  logger,
                  proposals):
-        super(Greedy, self).__init__(random,
+        super(GreedyAdd, self).__init__(random,
                                      pool_size,
                                      teaching_budget,
                                      initial_training_set,
@@ -821,13 +891,20 @@ class Runner(object):
                                               options.tmax,
                                               options.tmin,
                                               options.epsilon)
-            elif options.searcher == 'greedy':
-                algorithm = Greedy(options.rs,
-                                   options.num_train,
-                                   options.teaching_budget,
-                                   options.initial_training_set,
-                                   logger,
-                                   options.proposals)
+            elif options.searcher == 'greedy-add':
+                algorithm = GreedyAdd(options.rs,
+                                      options.num_train,
+                                      options.teaching_budget,
+                                      options.initial_training_set,
+                                      logger,
+                                      options.proposals)
+            elif options.searcher == 'random-index-greedy-swap':
+                algorithm = RandomIndexGreedySwap(options.rs,
+                                                  options.num_train,
+                                                  options.teaching_budget,
+                                                  options.initial_training_set,
+                                                  logger,
+                                                  options.search_budget)
             else:
                 msg = 'Algorithm %s not recognized' % (options.searcher)
                 raise Exception(msg)

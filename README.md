@@ -39,7 +39,6 @@ This project has been tested with Python 2.7.
         --output-filename OUTPUT_FILENAME                                      \
         --teaching-set-size TEACHING_SET_SIZE                                  \ 
         --search-budget SEARCH_BUDGET
-
 `--candidate-pool-filename` is a file which contains the candidate pool to search from, one item per line.
 
 `--loss-executable` is an executable which `capomate` will call during its execution. This executable must take two command-line arguments `FILE1` and `FILE2`. The first argument `FILE1` will contain a set of items for the learner to train on. The second argument `FILE2` will be a filename where the executable should write the loss of learner after training on the items in `FILE1`. The lines in `FILE1` will simply be a subset of the lines in `CANDIDATE_POOL_FILENAME`.
@@ -51,7 +50,6 @@ So for example the contents of `FILE1` might look like:
     0.0, -0.445851864127, -0.714059744101
     0.0, -0.277103602825, -0.443798812213
     0.0, -0.658923942945, -1.05530805171
-
 Let's say the executable is named `my_learner`, it will be called with:
 
 ```my_learner FILE1 FILE2```

@@ -132,11 +132,15 @@ def main():
                         type=int,
                         help='Random seed',
                         default=random.seed())
+    parser.add_argument('--algorithm',
+                        help='Teaching search algorithm',
+                        choices=['greedy-add', 'random-index-greedy-swap'],
+                        default='greedy-add')
 
     options = parser.parse_args()
     options.teaching_budget = options.teaching_set_size
     options.parallel = False
-    options.searcher = 'greedy'
+    options.searcher = options.algorithm
     options.num_trials = 1
     options.initial_training_set = None
     options.no_progress = False
