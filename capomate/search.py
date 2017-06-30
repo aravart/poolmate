@@ -158,14 +158,12 @@ class RandomIndexGreedySwap(Algorithm):
         idx = self.random.randint(0, self.teaching_budget)
         if self.step + self.pool_size > self.search_budget:
             rng = self.random.choice(self.pool_size,
-                                     size = self.search_budget - self.step,
+                                     size=self.search_budget - self.step,
                                      replace=False).tolist()
         else:
-            rng = range(pool_size)
+            rng = range(self.pool_size)
         for n in rng:
-            ns = self.current_set[0:idx] + \
-                 [n] + \
-                 self.current_set[idx+1:]
+            ns = self.current_set[0:idx] + [n] + self.current_set[idx+1:]
             self.models_to_fetch.append(ns)
 
     def next_fit_request(self):
