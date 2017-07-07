@@ -180,7 +180,6 @@ class RandomIndexGreedySwap(Algorithm):
 
     def next_fit_result(self, model, loss, set):
         self.step += 1
-        print model
         if not self.current_loss:
             self.current_model = model
             self.current_loss = loss
@@ -210,10 +209,10 @@ class GreedyAdd(Algorithm):
                  logger,
                  proposals):
         super(GreedyAdd, self).__init__(random,
-                                     pool_size,
-                                     teaching_budget,
-                                     initial_training_set,
-                                     logger)
+                                        pool_size,
+                                        teaching_budget,
+                                        initial_training_set,
+                                        logger)
         self.proposals = proposals or pool_size / teaching_budget
         self.current_set = []
         self.models_to_fetch = []

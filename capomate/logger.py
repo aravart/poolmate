@@ -5,13 +5,6 @@ from uuid import uuid4
 
 
 class Logger(object):
-    # An issue here is that insertion is very slow because it reads
-    # the whole data set each time! But caching results is tricky with
-    # binding. You don't want to double insert (so that's a reason to
-    # flush) But if you flush to close a bound sublogger you have to
-    # read the data set which defeats the point of caching Solution is
-    # to extract to a common cache object Be sure to clear the cache
-    # so that all sub-loggers hold the same map
     def __init__(self,
                  bound_args={},
                  whitelist_log=[],
@@ -19,7 +12,8 @@ class Logger(object):
                  store_instance=True,
                  experiment=None,
                  show_all=False,
-                 cache={}):
+                 cache={},
+                 f=None):
         self.bound_args = bound_args
         self.whitelist_log = whitelist_log
         self.blacklist_store = blacklist_store
@@ -27,6 +21,7 @@ class Logger(object):
         self.exp = experiment
         self.show_all = show_all
         self.cache = cache
+        self.f = f
 
     def log(self, event, **args):
         if event not in self.blacklist_store:
@@ -34,6 +29,11 @@ class Logger(object):
                 self.cache[event] = []
             args.update(self.bound_args)
             self.cache[event].append(args)
+            if self.f:
+                args['event'] = event
+                self.f.write(str(args))
+                self.f.write('\n')
+                self.f.flush()
         if event in self.whitelist_log or self.show_all:
             print event, args
 
@@ -46,7 +46,8 @@ class Logger(object):
                       self.store_instance,
                       self.exp,
                       self.show_all,
-                      self.cache)
+                      self.cache,
+                      self.f)
 
     def create_or_get_table(self, table):
         """ Returns reference to table """
@@ -66,20 +67,10 @@ class Logger(object):
         pass
 
     def experiment(self, instance=None, **options):
-        # table = self.create_or_get_table('experiments')
-
-        # id = self.insert(table, options)
-        # field = DateField()
-        # jsondate = field._to_json(datetime.date.today())
-        # self.update(table, id, {'experiment': id, 'date': jsondate})
         id = uuid4().hex
-        # field = DateField()
-        # jsondate = field._to_json(datetime.date.today())
         exp = dict(options)
-        # exp.update({'experiment': id, 'date': jsondate})
         exp.update({'experiment': id})
         exp['elapsed'] = time.time()
-        # self.insert(table, record)
 
         if instance and self.store_instance:
             r = {'instance': pickle.dumps(instance), 'experiment': id}
@@ -101,9 +92,7 @@ class Logger(object):
         t = self.create_or_get_table('experiments')
         self.exp['elapsed'] = time.time() - self.exp['elapsed']
         self.insert(t, self.exp)
-        # self.update(t, self.bound_args['experiment'], {'elapsed': elapsed})
         self.flush()
-        # should I clear self.exp here?
 
     def suppress(self, event, log=True, store=True):
         if log:

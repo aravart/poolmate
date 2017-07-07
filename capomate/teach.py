@@ -60,7 +60,6 @@ class ProcessLearner(object):
         shell_cmd = self.cmd + ' ' + \
             self.input_filename + ' ' + \
             self.output_filename
-        # inline(self.input_filename, self.output_filename)
         error_code = subprocess.call(shell_cmd.split(' '))
         if error_code != 0:
             print "Child process returned with error code %s" % error_code
@@ -136,6 +135,9 @@ def main():
                         help='Teaching search algorithm',
                         choices=['greedy-add', 'random-index-greedy-swap'],
                         default='greedy-add')
+    parser.add_argument('--log',
+                        help='Filename of log file',
+                        default=None)
 
     options = parser.parse_args()
     options.teaching_budget = options.teaching_set_size
@@ -157,9 +159,10 @@ def main():
     if options.proposals is None:
         options.proposals = len(candidate_pool) / options.teaching_budget
 
-    log = Logger()
+    logfile = open(options.log, 'w') if options.log else None
+    log = Logger(f=logfile)
     log.store_instance = False
-    runner = ProcessRunner(options.loss_executable)
+    runner = ProcessRunner(options.loss_executable, log)
     results = runner.run_experiment(instance, options)
     loss = results.results[0].best_evaluation_loss
     best_set_indices = results.results[0].best_set
@@ -167,6 +170,8 @@ def main():
         f.write(str(loss) + '\n')
         for idx in best_set_indices:
             f.write(candidate_pool[idx])
+    if logfile:
+        logfile.close()
 
 if __name__ == "__main__":
     main()
