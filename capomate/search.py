@@ -207,13 +207,15 @@ class GreedyAdd(Algorithm):
                  teaching_budget,
                  initial_training_set,
                  logger,
-                 proposals):
+                 proposals,
+                 search_budget):
         super(GreedyAdd, self).__init__(random,
                                         pool_size,
                                         teaching_budget,
                                         initial_training_set,
                                         logger)
-        self.proposals = proposals or pool_size / teaching_budget
+        self.proposals = proposals or min(pool_size,
+                                         search_budget / teaching_budget)
         self.current_set = []
         self.models_to_fetch = []
         self.models_fetched = []
@@ -894,7 +896,8 @@ class Runner(object):
                                       options.teaching_budget,
                                       options.initial_training_set,
                                       logger,
-                                      options.proposals)
+                                      options.proposals,
+                                      options.search_budget)
             elif options.searcher == 'random-index-greedy-swap':
                 algorithm = RandomIndexGreedySwap(options.rs,
                                                   options.num_train,
