@@ -7,6 +7,7 @@ import pickle
 import re
 import sys
 import scipy
+import string
 
 from sklearn.metrics import zero_one_loss, mean_squared_error, mean_absolute_error
 from sklearn.svm import SVC
@@ -30,7 +31,8 @@ class Search(object):
                  search_budget,
                  progress_bar,
                  attention_budget,
-                 logger):
+                 logger,
+                 logfilename):
         self.algorithm = algorithm
         self.candidate_pool = candidate_pool
         self.learner = learner
@@ -40,8 +42,10 @@ class Search(object):
         self.progress_bar = progress_bar
         self.attention_budget = attention_budget
         self.logger = logger
+        self.logfilename = logfilename
 
     def search(self):
+        log = open(self.logfilename, 'w') if self.logfilename else None
         result = Result()
         self.algorithm.result = result
         m = self.learner.init_model
@@ -55,6 +59,8 @@ class Search(object):
             m = self.learner.fit(m, self.inds_to_dataset(s))
             l = self.loss(m)
             result.fits.append((i, s, l))
+            if log:
+                log.write("%d, %f, \"%s\"\n" % (i,l,string.join(map(str,s),",")))
             self.logger.model_fit(i=i,
                                   loss=l,
                                   training_set=s)
@@ -65,6 +71,8 @@ class Search(object):
         result.best_set = self.algorithm.best_set
         self.logger.best_set(best_loss=self.algorithm.best_loss,
                              best_set=self.algorithm.best_set)
+        if log:
+            log.close()
         return result
 
     def inds_to_dataset(self, inds):
@@ -958,7 +966,8 @@ class Runner(object):
                                            options.search_budget,
                                            not options.no_progress,
                                            options.attention_budget,
-                                           logger)
+                                           logger,
+                                           options.log)
             result = searcher.search()
             if test_loss:
                 result.test_loss = test_loss(result.best_model)

@@ -12,8 +12,7 @@ class Logger(object):
                  store_instance=True,
                  experiment=None,
                  show_all=False,
-                 cache={},
-                 f=None):
+                 cache={}):
         self.bound_args = bound_args
         self.whitelist_log = whitelist_log
         self.blacklist_store = blacklist_store
@@ -21,7 +20,6 @@ class Logger(object):
         self.exp = experiment
         self.show_all = show_all
         self.cache = cache
-        self.f = f
 
     def log(self, event, **args):
         if event not in self.blacklist_store:
@@ -29,11 +27,6 @@ class Logger(object):
                 self.cache[event] = []
             args.update(self.bound_args)
             self.cache[event].append(args)
-            if self.f:
-                args['event'] = event
-                self.f.write(str(args))
-                self.f.write('\n')
-                self.f.flush()
         if event in self.whitelist_log or self.show_all:
             print event, args
 
@@ -46,8 +39,7 @@ class Logger(object):
                       self.store_instance,
                       self.exp,
                       self.show_all,
-                      self.cache,
-                      self.f)
+                      self.cache)
 
     def create_or_get_table(self, table):
         """ Returns reference to table """

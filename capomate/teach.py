@@ -19,7 +19,8 @@ class ProcessSearch(Search):
                  search_budget,
                  progress_bar,
                  attention_budget,
-                 logger):
+                 logger,
+                 logfile):
         super(ProcessSearch, self).__init__(algorithm,
                                             candidate_pool,
                                             learner,
@@ -27,7 +28,8 @@ class ProcessSearch(Search):
                                             search_budget,
                                             progress_bar,
                                             attention_budget,
-                                            logger)
+                                            logger,
+                                            logfile)
 
     def inds_to_dataset(self, inds):
         res = []
@@ -86,7 +88,8 @@ class ProcessRunner(Runner):
                        search_budget,
                        progress_bar,
                        attention_budget,
-                       logger):
+                       logger,
+                       logfile):
         return ProcessSearch(algorithm,
                              candidate_pool,
                              learner,
@@ -94,7 +97,8 @@ class ProcessRunner(Runner):
                              search_budget,
                              progress_bar,
                              attention_budget,
-                             logger)
+                             logger,
+                             logfile)
 
     def construct_learner(self, options):
         return ProcessLearner(self.cmd)
@@ -159,8 +163,7 @@ def main():
     if options.proposals is None:
         options.proposals = len(candidate_pool) / options.teaching_budget
 
-    logfile = open(options.log, 'w') if options.log else None
-    log = Logger(f=logfile)
+    log = Logger()
     log.store_instance = False
     runner = ProcessRunner(options.loss_executable, log)
     results = runner.run_experiment(instance, options)
@@ -170,8 +173,6 @@ def main():
         f.write(str(loss) + '\n')
         for idx in best_set_indices:
             f.write(candidate_pool[idx])
-    if logfile:
-        logfile.close()
 
 if __name__ == "__main__":
     main()
