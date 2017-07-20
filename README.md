@@ -79,6 +79,34 @@ For example, a command-line invocation with all required parameters set might lo
         --teaching-set-size 10                       \
         --search-budget 10000
 
+### Programmatic Interface
+
+If one wishes to avoid the overhead of executable callbacks and is willing to
+write a learner in Python, one can invoke `capomate` programmatically. In this
+case, one has to provide a learner instance which implements two methods:
+
+    
+    class MyLearner(object):
+
+    def loss(self, model):
+        # ... return some a float loss
+
+    def fit(self, xy):
+        # ... return model fit on xy
+        
+The `fit` method must fit a model on `xy`, which is an iterable subset of the candidate pool.
+The `loss` method receives as an argument the model returned `fit` and must itself return a loss of float type.
+
+Here is an example of its invocation:
+
+    from capomate.teach import Runner, build_options
+    
+    runner = Runner()
+    learner = MyLearner()
+    options = build_options(search_budget=10000,
+                            teaching_set_size=10)
+    best_loss, best_set = runner.run_experiment(candidate_pool, learner, options)
+
 ## FAQ
 
 ### My learner is a MATLAB function? How can `capomate` call a MATLAB function?

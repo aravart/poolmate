@@ -5,53 +5,70 @@ import subprocess
 import tempfile
 import os
 from argparse import ArgumentParser
-from search import Search, Runner
-from logger import Logger
+from search import Runner
+import numpy as np
 # from capomate.test.dummy import inline
 
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import zero_one_loss
 
-class ProcessSearch(Search):
-    def __init__(self,
-                 algorithm,
-                 candidate_pool,
-                 learner,
-                 loss,
-                 search_budget,
-                 progress_bar,
-                 attention_budget,
-                 logger,
-                 logfile):
-        super(ProcessSearch, self).__init__(algorithm,
-                                            candidate_pool,
-                                            learner,
-                                            loss,
-                                            search_budget,
-                                            progress_bar,
-                                            attention_budget,
-                                            logger,
-                                            logfile)
 
-    def inds_to_dataset(self, inds):
-        res = []
-        for i in inds:
-            res.append(self.candidate_pool[0][i])
-        return res
+class AllOneLabel:
+    def __init__(self, y):
+        self.y = y
 
+    def predict(self, xs):
+        return [self.y] * len(xs)
+
+
+class ScikitLearner(object):
+    def __init__(self, learner_class, learner_params, z):
+        self.learner_class = learner_class
+        self.learner_params = learner_params
+        self.z = z
+
+    def loss(self):
+        y_preds = self.current_learner.predict(self.z[:, 1:])
+        return zero_one_loss(self.z[:, 0], y_preds, normalize=True)
+
+    def fit(self, yx):
+        yx = np.array(yx)
+        labels = yx[:, 0]
+        features = yx[:, 1:]
+        if len(np.unique(labels)) == 1:
+            self.current_learner = AllOneLabel(labels[0])
+        else:
+            self.current_learner = self.learner_class(**self.learner_params)
+            self.current_learner.fit(features, labels)
+
+
+class SVMLearner(ScikitLearner):
+    def __init__(self, z):
+        super(SVMLearner, self).__init__(SVC,
+                                         {'C': 1.0, 'kernel': 'linear'},
+                                         z)
+
+
+class KNNLearner(ScikitLearner):
+    def __init__(self, k, z):
+        super(KNNLearner, self).__init__(KNeighborsClassifier,
+                                         {'n_neighbors': k, 'weights': 'uniform'},
+                                         z)
 
 class ProcessLearner(object):
     def __init__(self, cmd):
         self.cmd = cmd
-        self.loss = None
         dir = tempfile._get_default_tempdir()
         self.input_filename = os.path.join(dir,
                                            next(tempfile._get_candidate_names()))
         self.output_filename = os.path.join(dir,
                                             next(tempfile._get_candidate_names()))
 
-    def init_model(self):
-        return None
+    def loss(self, model):
+        return self.loss_
 
-    def fit(self, model, data):
+    def fit(self, data):
         if os.path.exists(self.input_filename):
             raise Exception('Input file already exists')
         if os.path.exists(self.output_filename):
@@ -69,109 +86,82 @@ class ProcessLearner(object):
         if not os.path.exists(self.output_filename):
             raise Exception('Output file not written')
         with open(self.output_filename) as f:
-            self.loss = float(string.strip(f.readline()))
+            self.loss_ = float(string.strip(f.readline()))
         os.remove(self.input_filename)
         os.remove(self.output_filename)
         return None
 
 
-class ProcessRunner(Runner):
-    def __init__(self, cmd, logger=Logger()):
-        super(ProcessRunner, self).__init__(logger)
-        self.cmd = cmd
-
-    def search_factory(self,
-                       algorithm,
-                       candidate_pool,
-                       learner,
-                       loss,
-                       search_budget,
-                       progress_bar,
-                       attention_budget,
-                       logger,
-                       logfile):
-        return ProcessSearch(algorithm,
-                             candidate_pool,
-                             learner,
-                             loss,
-                             search_budget,
-                             progress_bar,
-                             attention_budget,
-                             logger,
-                             logfile)
-
-    def construct_learner(self, options):
-        return ProcessLearner(self.cmd)
-
-    def construct_loss(self, instance, options, learner):
-        def f(model):
-            return learner.loss
-        return f, None
-
-
-def main():
+def build_options(candidate_pool_filename=None,
+                  loss_executable=None,
+                  output_filename=None,
+                  teaching_set_size=None,
+                  search_budget=None,
+                  proposals=None,
+                  seed=random.seed(),
+                  algorithm='greedy-add',
+                  log=None):
     parser = ArgumentParser()
     parser.add_argument("--candidate-pool-filename",
                         help='Filename for candidate pool, one item per line',
-                        required=True)
+                        # required=True,
+                        default=candidate_pool_filename)
     parser.add_argument("--loss-executable",
                         help='Executable command to return loss on teaching set',
-                        required=True)
+                        # required=True,
+                        default=loss_executable)
     parser.add_argument("--output-filename",
                         help='Filename to write best found teaching set and loss to',
-                        required=True)
+                        # required=True,
+                        default=output_filename)
     parser.add_argument("--teaching-set-size",
                         type=int,
                         help='Size of teaching set to return',
-                        required=True)
+                        # required=True,
+                        default=teaching_set_size)
     parser.add_argument("--search-budget",
                         type=int,
                         help='Budget of models to fit',
-                        required=True)
+                        # required=True,
+                        default=search_budget)
     parser.add_argument("--proposals",
                         type=int,
-                        help='Number of proposals to consider at each search iteration')
+                        help='Number of proposals to consider at each search iteration',
+                        default=proposals)
     parser.add_argument("--seed",
                         type=int,
                         help='Random seed',
-                        default=random.seed())
+                        default=seed)
     parser.add_argument('--algorithm',
                         help='Teaching search algorithm',
                         choices=['greedy-add', 'random-index-greedy-swap'],
-                        default='greedy-add')
+                        default=algorithm)
     parser.add_argument('--log',
                         help='Filename of log file',
-                        default=None)
+                        default=log)
 
     options = parser.parse_args()
-    options.teaching_budget = options.teaching_set_size
-    options.parallel = False
-    options.searcher = options.algorithm
-    options.num_trials = 1
     options.initial_training_set = None
     options.no_progress = False
-    options.attention_budget = -1
-    options.filename = None
+    return options
 
-    # Get candidate pool
+
+def main():
+    options = build_options()
+
     with open(options.candidate_pool_filename) as f:
         candidate_pool = f.readlines()
-    instance = ((candidate_pool, candidate_pool),
-                ([], []),
-                ([], []))
 
     if options.proposals is None:
         options.proposals = len(candidate_pool) / options.teaching_budget
 
-    log = Logger()
-    log.store_instance = False
-    runner = ProcessRunner(options.loss_executable, log)
-    results = runner.run_experiment(instance, options)
-    loss = results.results[0].best_evaluation_loss
-    best_set_indices = results.results[0].best_set
+    runner = Runner()
+    learner = ProcessLearner(options.loss_executable)
+    best_loss, best_set = runner.run_experiment(candidate_pool, learner, options)
+
     with open(options.output_filename, 'w') as f:
-        f.write(str(loss) + '\n')
-        for idx in best_set_indices:
+        f.write(str(best_loss) + '\n')
+        for idx in best_set:
             f.write(candidate_pool[idx])
 
 if __name__ == "__main__":
