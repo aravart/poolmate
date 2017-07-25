@@ -28,7 +28,7 @@ class ScikitLearner(object):
         self.learner_params = learner_params
         self.z = z
 
-    def loss(self):
+    def loss(self, model):
         y_preds = self.current_learner.predict(self.z[:, 1:])
         return zero_one_loss(self.z[:, 0], y_preds, normalize=True)
 

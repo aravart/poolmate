@@ -4,7 +4,9 @@ import StringIO
 from capomate.teach import Runner, SVMLearner, build_options
 from sklearn.datasets import make_classification
 
-def ScikitTextLearner:
+
+# TODO: Unneeded?
+class ScikitTextLearner:
     def __init__(self, scikit_learner):
         self.scikit_learner = scikit_learner
 
@@ -56,4 +58,4 @@ def test_log_stream():
   # no this wrapper isn't taking indices
 # can we output and plot performance?
 # what about doing it for text?
-# document 
+# document

@@ -215,7 +215,7 @@ class Runner(object):
             m = learner.fit([instance[x] for x in s])
             l = learner.loss(m)
             if log:
-                log.write("%d, %f, \"%s\"\n" % (i,l,string.join(map(str,s),",")))
+                log.write("%d, %f, %s\n" % (i,l,string.join(map(str,s),' ')))
             algorithm.next_fit_result(m, l, s)
         if log and not isinstance(log, StringIO.StringIO):
             log.close()
