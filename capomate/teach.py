@@ -152,12 +152,11 @@ def main():
     with open(options.candidate_pool_filename) as f:
         candidate_pool = f.readlines()
 
-    if options.proposals is None:
-        options.proposals = len(candidate_pool) / options.teaching_budget
-
     runner = Runner()
     learner = ProcessLearner(options.loss_executable)
-    best_loss, best_set = runner.run_experiment(candidate_pool, learner, options)
+    best_loss, best_set = runner.run_experiment(candidate_pool,
+                                                learner,
+                                                options)
 
     with open(options.output_filename, 'w') as f:
         f.write(str(best_loss) + '\n')

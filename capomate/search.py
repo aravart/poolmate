@@ -56,12 +56,14 @@ class RandomIndexGreedySwap(Algorithm):
                  pool_size,
                  teaching_set_size,
                  initial_training_set,
-                 search_budget):
+                 search_budget,
+                 proposals):
         super(RandomIndexGreedySwap, self).__init__(random,
                                                     pool_size,
                                                     teaching_set_size,
                                                     initial_training_set)
         self.search_budget = search_budget
+        self.proposals = proposals or pool_size
         self.current_set = None
         self.current_model = None
         self.current_loss = None
@@ -69,47 +71,46 @@ class RandomIndexGreedySwap(Algorithm):
         self.models_fetched = []
         self.step = 0
 
-    def fill_models_to_fetch(self):
+    def fill_models_to_fetch(self, base_set):
         idx = self.random.randint(0, self.teaching_set_size)
-        if self.step + self.pool_size > self.search_budget:
+        if self.step + self.proposals > self.search_budget:
             rng = self.random.choice(self.pool_size,
                                      size=self.search_budget - self.step,
+                                     replace=False).tolist()
+        elif self.proposals < self.pool_size:
+            rng = self.random.choice(self.pool_size,
+                                     size=self.proposals,
                                      replace=False).tolist()
         else:
             rng = range(self.pool_size)
         for n in rng:
-            ns = self.current_set[0:idx] + [n] + self.current_set[idx+1:]
+            ns = base_set[0:idx] + [n] + base_set[idx+1:]
             self.models_to_fetch.append(ns)
 
     def next_fit_request(self):
         if not self.current_set:
-            self.current_set = self.initial_training_set()
-            return self.current_set
-        else:
-            if self.models_to_fetch:
-                return self.models_to_fetch.pop()
-            else:
-                self.models_fetched = []
-                self.fill_models_to_fetch()
-                return self.models_to_fetch.pop()
+            self.fill_models_to_fetch(self.initial_training_set())
+        elif not self.models_to_fetch:
+            self.models_fetched = []
+            self.fill_models_to_fetch(self.current_set)
+        return self.models_to_fetch.pop()
 
     def next_fit_result(self, model, loss, set):
         self.step += 1
         if not self.current_loss:
+            self.current_set = set
             self.current_model = model
             self.current_loss = loss
-        else:
-            self.models_fetched.append((model, loss, set))
-            if not self.models_to_fetch:
-                for m, l, s in self.models_fetched:
-                    if l < self.current_loss:
-                        self.current_model = m
-                        self.current_loss = l
-                        self.current_set = s
-                self.accept_best(self.current_model,
-                                 self.current_loss,
-                                 self.current_set)
-
+        self.models_fetched.append((model, loss, set))
+        if not self.models_to_fetch:
+            for m, l, s in self.models_fetched:
+                if l < self.current_loss:
+                    self.current_model = m
+                    self.current_loss = l
+                    self.current_set = s
+            self.accept_best(self.current_model,
+                             self.current_loss,
+                             self.current_set)
 
 class GreedyAdd(Algorithm):
     def __init__(self,
@@ -192,7 +193,8 @@ class Runner(object):
                                               options.num_train,
                                               options.teaching_set_size,
                                               options.initial_training_set,
-                                              options.search_budget)
+                                              options.search_budget,
+                                              options.proposals)
         else:
             msg = 'Algorithm %s not recognized' % (options.algorithm)
             raise Exception(msg)
