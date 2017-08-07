@@ -92,7 +92,8 @@ class ProcessLearner(object):
         return None
 
 
-def build_options(candidate_pool_filename=None,
+def build_options(args=None,
+                  candidate_pool_filename=None,
                   loss_executable=None,
                   output_filename=None,
                   teaching_set_size=None,
@@ -134,13 +135,13 @@ def build_options(candidate_pool_filename=None,
                         default=seed)
     parser.add_argument('--algorithm',
                         help='Teaching search algorithm',
-                        choices=['greedy-add', 'random-index-greedy-swap'],
+                        choices=['greedy-add', 'random-index-greedy-swap', 'uniform'],
                         default=algorithm)
     parser.add_argument('--log',
                         help='Filename of log file',
                         default=log)
 
-    options = parser.parse_args()
+    options = parser.parse_args(args=args)
     options.initial_training_set = None
     options.no_progress = False
     return options

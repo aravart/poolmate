@@ -112,6 +112,15 @@ class RandomIndexGreedySwap(Algorithm):
                              self.current_loss,
                              self.current_set)
 
+
+class UniformSampling(Algorithm):
+    def next_fit_request(self):
+        return self.initial_training_set()
+
+    def next_fit_result(self, model, loss, set):
+        self.accept_best(model, loss, set)
+
+
 class GreedyAdd(Algorithm):
     def __init__(self,
                  random,
@@ -126,6 +135,8 @@ class GreedyAdd(Algorithm):
                                         initial_training_set)
         self.proposals = proposals or min(pool_size,
                                           search_budget / teaching_set_size)
+        # TODO could also add a second flag for # of teaching sets you want to
+        # produce which then sets proposals appropriately
         self.current_set = []
         self.models_to_fetch = []
         self.models_fetched = []
@@ -195,6 +206,11 @@ class Runner(object):
                                               options.initial_training_set,
                                               options.search_budget,
                                               options.proposals)
+        elif options.algorithm == 'uniform':
+            algorithm = UniformSampling(options.rs,
+                                        options.num_train,
+                                        options.teaching_set_size,
+                                        options.initial_training_set)
         else:
             msg = 'Algorithm %s not recognized' % (options.algorithm)
             raise Exception(msg)
