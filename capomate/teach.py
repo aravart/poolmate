@@ -101,7 +101,7 @@ def build_options(args=None,
                   proposals=None,
                   seed=random.seed(),
                   algorithm='greedy-add',
-                  initial_training_set=None,
+                  initial_teaching_set=None,
                   log=None):
 
     parse_ints = lambda value: map(int, value.split(',')) if value else None
@@ -140,9 +140,9 @@ def build_options(args=None,
                         help='Teaching search algorithm',
                         choices=['greedy-add', 'random-index-greedy-swap', 'uniform'],
                         default=algorithm)
-    parser.add_argument("--initial-training-set",
+    parser.add_argument("--initial-teaching-set",
                         type=parse_ints,
-                        default=initial_training_set)
+                        default=initial_teaching_set)
     parser.add_argument('--log',
                         help='Filename of log file',
                         default=log)

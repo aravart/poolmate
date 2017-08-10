@@ -15,7 +15,7 @@ class Algorithm(object):
                  random,
                  pool_size,
                  teaching_set_size,
-                 initial_training_set):
+                 initial_teaching_set):
         self.random = random
         self.pool_size = pool_size
         self.teaching_set_size = teaching_set_size
@@ -23,8 +23,8 @@ class Algorithm(object):
         self.best_model = None
         self.best_set = None
         self.result = None
-        self._initial_training_set = initial_training_set
-        self.calls_to_initial_training_set = 0
+        self._initial_teaching_set = initial_teaching_set
+        self.calls_to_initial_teaching_set = 0
 
     def validate(self, search_budget):
         pass
@@ -41,12 +41,12 @@ class Algorithm(object):
             self.best_loss = loss
             self.best_set = set
 
-    def initial_training_set(self):
-        if self.calls_to_initial_training_set == 0 and self._initial_training_set:
-            self.calls_to_initial_training_set += 1
-            return self._initial_training_set
+    def initial_teaching_set(self):
+        if self.calls_to_initial_teaching_set == 0 and self._initial_teaching_set:
+            self.calls_to_initial_teaching_set += 1
+            return self._initial_teaching_set
         else:
-            self.calls_to_initial_training_set += 1
+            self.calls_to_initial_teaching_set += 1
             return [self.random.randint(0, self.pool_size) for _ in range(self.teaching_set_size)]
 
 
@@ -55,13 +55,13 @@ class RandomIndexGreedySwap(Algorithm):
                  random,
                  pool_size,
                  teaching_set_size,
-                 initial_training_set,
+                 initial_teaching_set,
                  search_budget,
                  proposals):
         super(RandomIndexGreedySwap, self).__init__(random,
                                                     pool_size,
                                                     teaching_set_size,
-                                                    initial_training_set)
+                                                    initial_teaching_set)
         self.search_budget = search_budget
         self.proposals = proposals or pool_size
         self.current_set = None
@@ -89,7 +89,7 @@ class RandomIndexGreedySwap(Algorithm):
 
     def next_fit_request(self):
         if not self.current_set:
-            self.fill_models_to_fetch(self.initial_training_set())
+            self.fill_models_to_fetch(self.initial_teaching_set())
         elif not self.models_to_fetch:
             self.models_fetched = []
             self.fill_models_to_fetch(self.current_set)
@@ -115,7 +115,7 @@ class RandomIndexGreedySwap(Algorithm):
 
 class UniformSampling(Algorithm):
     def next_fit_request(self):
-        return self.initial_training_set()
+        return self.initial_teaching_set()
 
     def next_fit_result(self, model, loss, set):
         self.accept_best(model, loss, set)
@@ -126,13 +126,13 @@ class GreedyAdd(Algorithm):
                  random,
                  pool_size,
                  teaching_set_size,
-                 initial_training_set,
+                 initial_teaching_set,
                  proposals,
                  search_budget):
         super(GreedyAdd, self).__init__(random,
                                         pool_size,
                                         teaching_set_size,
-                                        initial_training_set)
+                                        initial_teaching_set)
         self.proposals = proposals or min(pool_size,
                                           search_budget / teaching_set_size)
         # TODO could also add a second flag for # of teaching sets you want to
@@ -196,21 +196,21 @@ class Runner(object):
             algorithm = GreedyAdd(options.rs,
                                   options.num_train,
                                   options.teaching_set_size,
-                                  options.initial_training_set,
+                                  options.initial_teaching_set,
                                   options.proposals,
                                   options.search_budget)
         elif options.algorithm == 'random-index-greedy-swap':
             algorithm = RandomIndexGreedySwap(options.rs,
                                               options.num_train,
                                               options.teaching_set_size,
-                                              options.initial_training_set,
+                                              options.initial_teaching_set,
                                               options.search_budget,
                                               options.proposals)
         elif options.algorithm == 'uniform':
             algorithm = UniformSampling(options.rs,
                                         options.num_train,
                                         options.teaching_set_size,
-                                        options.initial_training_set)
+                                        options.initial_teaching_set)
         else:
             msg = 'Algorithm %s not recognized' % (options.algorithm)
             raise Exception(msg)
