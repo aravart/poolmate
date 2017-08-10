@@ -101,7 +101,10 @@ def build_options(args=None,
                   proposals=None,
                   seed=random.seed(),
                   algorithm='greedy-add',
+                  initial_training_set=None,
                   log=None):
+
+    parse_ints = lambda value: map(int, value.split(',')) if value else None
     parser = ArgumentParser()
     parser.add_argument("--candidate-pool-filename",
                         help='Filename for candidate pool, one item per line',
@@ -137,14 +140,18 @@ def build_options(args=None,
                         help='Teaching search algorithm',
                         choices=['greedy-add', 'random-index-greedy-swap', 'uniform'],
                         default=algorithm)
+    parser.add_argument("--initial-training-set",
+                        type=parse_ints,
+                        default=initial_training_set)
     parser.add_argument('--log',
                         help='Filename of log file',
                         default=log)
 
     options = parser.parse_args(args=args)
-    options.initial_training_set = None
     options.no_progress = False
     return options
+
+
 
 
 def main():

@@ -83,7 +83,7 @@ class RandomIndexGreedySwap(Algorithm):
                                      replace=False).tolist()
         else:
             rng = range(self.pool_size)
-        for n in rng:
+        for n in reversed(rng):
             ns = base_set[0:idx] + [n] + base_set[idx+1:]
             self.models_to_fetch.append(ns)
 
