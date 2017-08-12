@@ -7,7 +7,6 @@ import os
 from argparse import ArgumentParser
 from search import Runner
 import numpy as np
-# from capomate.test.dummy import inline
 
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier

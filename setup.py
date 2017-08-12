@@ -1,9 +1,9 @@
 from setuptools import setup
 
 setup(
-    name='capomate',
+    name='poolmate',
     version='0.1a0',
-    packages=['capomate'],
+    packages=['poolmate'],
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",

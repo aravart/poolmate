@@ -1,7 +1,7 @@
 import numpy as np
 import StringIO
 
-from capomate.teach import Runner, SVMLearner, build_options
+from poolmate.teach import Runner, SVMLearner, build_options
 from sklearn.datasets import make_classification
 
 
