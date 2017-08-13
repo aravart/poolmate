@@ -38,11 +38,13 @@ This project has been tested with Python 2.7.
 
 ### Command-line interface
 
+
     python poolmate/teach.py --candidate-pool-filename CANDIDATE_POOL_FILENAME \
         --loss-executable LOSS_EXECUTABLE                                      \
         --output-filename OUTPUT_FILENAME                                      \
         --teaching-set-size TEACHING_SET_SIZE                                  \ 
         --search-budget SEARCH_BUDGET
+
 
 `--candidate-pool-filename` is a file which contains the candidate pool to search from, one item per line.
 
@@ -50,11 +52,13 @@ This project has been tested with Python 2.7.
 
 So for example the contents of `FILE1` might look like:
 
+
     1, 0.658947147839417, 0.752189242381396
     1, 0.231140742000439, -0.972920324275059
     -1, -0.830995051808994, 0.556279807173483
     -1, -0.433446335329234, -0.901179379696216
     1, 0.958199172890462, 0.286101983691191
+
 
 Let's say the executable is named `my_learner`, it will be called with:
 
@@ -62,7 +66,9 @@ Let's say the executable is named `my_learner`, it will be called with:
 
 `my_learner` must train on the items in `FILE1` and write the loss of the trained learner to `FILE2` on a single line, say:
 
+
     0.03
+
 
 Please note that `poolmate` will use unique filenames on successive calls to the loss executable.
 
@@ -104,10 +110,12 @@ case, one has to provide a learner instance which implements two methods:
     def fit(self, xy):
         # ... return model fit on xy
         
+
 The `fit` method must fit a model on `xy`, which is an iterable subset of the candidate pool.
 The `loss` method receives as an argument the model returned `fit` and must itself return a loss of float type.
 
 Here is an example of its invocation:
+
 
     from poolmate.teach import Runner, build_options
     
@@ -116,6 +124,7 @@ Here is an example of its invocation:
     options = build_options(search_budget=10000,
                             teaching_set_size=10)
     best_loss, best_set = runner.run_experiment(candidate_pool, learner, options)
+
 
 ## FAQ
 
