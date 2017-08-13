@@ -159,7 +159,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Authors
 
-* Jerry Zhu (<jerryzhu@cs.wisc.edu>)
 * Ara Vartanian (<aravart@cs.wisc.edu>)
 * Scott Alfeld (<salfeld@amherst.edu>)
 * Ayon Sen  (<ayonsn@cs.wisc.edu>)
+* Jerry Zhu (<jerryzhu@cs.wisc.edu>)
