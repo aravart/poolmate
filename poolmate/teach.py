@@ -106,44 +106,51 @@ def build_options(args=None,
     parse_ints = lambda value: map(int, value.split(',')) if value else None
     parser = ArgumentParser()
     parser.add_argument("--candidate-pool-filename",
-                        help='Filename for candidate pool, one item per line',
-                        # required=True,
+                        help='Filename for candidate pool. The format of the file is that candidate items are represented one item per line.',
                         default=candidate_pool_filename)
     parser.add_argument("--loss-executable",
-                        help='Executable command to return loss on teaching set',
-                        # required=True,
+                        help="""Executable command which will return loss on teaching set. Executable must
+                        take two command-line arguments, an `inputfilename`
+                        containing the teaching set to train the learner on,
+                        one item per line, and an `outputfilename` where the
+                        loss should be written""",
                         default=loss_executable)
     parser.add_argument("--output-filename",
-                        help='Filename to write best found teaching set and loss to',
-                        # required=True,
+                        help="""Output filename where the
+                        best found teaching set and loss are written at the
+                        search procedure\'s termination""",
                         default=output_filename)
     parser.add_argument("--teaching-set-size",
                         type=int,
-                        help='Size of teaching set to return',
-                        # required=True,
+                        help='Size of teaching set to return.',
                         default=teaching_set_size)
     parser.add_argument("--search-budget",
                         type=int,
-                        help='Budget of models to fit',
-                        # required=True,
+                        help='Budget of number of models to fit. This is the number of times `loss-executable` will be invoked.',
                         default=search_budget)
     parser.add_argument("--proposals",
                         type=int,
-                        help='Number of proposals to consider at each search iteration',
+                        help='Number of proposals to consider at each search iteration. A tuning parameter for \'greedy-add\' and \'random-index-greedy-swap\' algorithms',
                         default=proposals)
     parser.add_argument("--seed",
                         type=int,
-                        help='Random seed',
+                        help='Set random seed to achieve consistency across iterations.',
                         default=seed)
     parser.add_argument('--algorithm',
-                        help='Teaching search algorithm',
+                        help='Choice of search algorithm',
                         choices=['greedy-add', 'random-index-greedy-swap', 'uniform'],
                         default=algorithm)
     parser.add_argument("--initial-teaching-set",
+                        help='A comma-separated zero-best list of indices to fix initial teaching set. Used in \'random-index-greedy-swap\' and \'uniform\' algorithms.',
                         type=parse_ints,
                         default=initial_teaching_set)
     parser.add_argument('--log',
-                        help='Filename of log file',
+                        help="""Filename of log file, where interim
+                        results are logged as comma-separated values (CSV). The
+                        three colums of the output represent the iteration of
+                        the search budget, the loss of the teaching set, and
+                        space-separated indices into the lines of the candidate
+                        pool file.""",
                         default=log)
 
     options = parser.parse_args(args=args)

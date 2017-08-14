@@ -94,6 +94,7 @@ As an example of a command-line invocation including all required parameters, th
         --teaching-set-size 2                              \
         --search-budget 200
 
+Due to the stochastic nature of search, your result may differ from the loss and teaching set given in the example above.
 
 ### Programmatic Interface
 
@@ -124,6 +125,49 @@ Here is an example of its invocation:
     options = build_options(search_budget=10000,
                             teaching_set_size=10)
     best_loss, best_set = runner.run_experiment(candidate_pool, learner, options)
+
+
+## Options
+
+Several other options are available using the command line:
+
+    -h, --help            show this help message and exit
+    --candidate-pool-filename CANDIDATE_POOL_FILENAME
+                          Filename for candidate pool. The format of the file is
+                          that candidate items are represented one item per
+                          line.
+    --loss-executable LOSS_EXECUTABLE
+                          Executable command which will return loss on teaching
+                          set. Executable must take two command-line arguments,
+                          an `inputfilename` containing the teaching set to
+                          train the learner on, one item per line, and an
+                          `outputfilename` where the loss should be written
+    --output-filename OUTPUT_FILENAME
+                          Output filename where the best found teaching set and
+                          loss are written at the search procedure's termination
+    --teaching-set-size TEACHING_SET_SIZE
+                          Size of teaching set to return.
+    --search-budget SEARCH_BUDGET
+                          Budget of number of models to fit. This is the number
+                          of times `loss-executable` will be invoked.
+    --proposals PROPOSALS
+                          Number of proposals to consider at each search
+                          iteration. A tuning parameter for 'greedy-add' and
+                          'random-index-greedy-swap' algorithms
+    --seed SEED           Set random seed to achieve consistency across
+                          iterations.
+    --algorithm {greedy-add,random-index-greedy-swap,uniform}
+                          Choice of search algorithm
+    --initial-teaching-set INITIAL_TEACHING_SET
+                          A comma-separated zero-best list of indices to fix
+                          initial teaching set. Used in 'random-index-greedy-
+                          swap' and 'uniform' algorithms.
+    --log LOG             Filename of log file, where interim results are logged
+                          as comma-separated values (CSV). The three colums of
+                          the output represent the iteration of the search
+                          budget, the loss of the teaching set, and space-
+                          separated indices into the lines of the candidate pool
+                          file.
 
 
 ## FAQ
