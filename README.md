@@ -38,6 +38,9 @@ This project has been tested with Python 2.7.
 
 ### Command-line interface
 
+The following describes basic usage. For more options, see [Options](#options).
+
+For the details, see [Usage](#usage).
 
     python poolmate/teach.py --candidate-pool-filename CANDIDATE_POOL_FILENAME \
         --loss-executable LOSS_EXECUTABLE                                      \
