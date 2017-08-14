@@ -4,7 +4,7 @@ import sys
 import subprocess
 import tempfile
 import os
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from search import Runner
 import numpy as np
 
@@ -104,7 +104,7 @@ def build_options(args=None,
                   log=None):
 
     parse_ints = lambda value: map(int, value.split(',')) if value else None
-    parser = ArgumentParser()
+    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument("--candidate-pool-filename",
                         help='Filename for candidate pool. The format of the file is that candidate items are represented one item per line.',
                         default=candidate_pool_filename)
@@ -134,23 +134,22 @@ def build_options(args=None,
                         default=proposals)
     parser.add_argument("--seed",
                         type=int,
-                        help='Set random seed to achieve consistency across iterations.',
+                        help='Set random seed to achieve reproducibility.',
                         default=seed)
     parser.add_argument('--algorithm',
                         help='Choice of search algorithm',
                         choices=['greedy-add', 'random-index-greedy-swap', 'uniform'],
                         default=algorithm)
     parser.add_argument("--initial-teaching-set",
-                        help='A comma-separated zero-best list of indices to fix initial teaching set. Used in \'random-index-greedy-swap\' and \'uniform\' algorithms.',
+                        help='A comma-separated list of zero-based indices to fix the initial teaching set. Used in \'random-index-greedy-swap\' and \'uniform\' algorithms (e.g., --initial-teaching-set 53,17 ).',
                         type=parse_ints,
                         default=initial_teaching_set)
     parser.add_argument('--log',
                         help="""Filename of log file, where interim
                         results are logged as comma-separated values (CSV). The
-                        three colums of the output represent the iteration of
-                        the search budget, the loss of the teaching set, and
-                        space-separated indices into the lines of the candidate
-                        pool file.""",
+                        three colums of the output represent the iteration number,
+                        the loss of the trained model for that iteration, and
+                        the teaching set for that iterations.""",
                         default=log)
 
     options = parser.parse_args(args=args)

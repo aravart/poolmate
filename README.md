@@ -40,7 +40,6 @@ This project has been tested with Python 2.7.
 
 The following describes basic usage. For more options, see [Options](#options).
 
-For the details, see [Usage](#usage).
 
     python poolmate/teach.py --candidate-pool-filename CANDIDATE_POOL_FILENAME \
         --loss-executable LOSS_EXECUTABLE                                      \
@@ -134,43 +133,47 @@ Here is an example of its invocation:
 
 Several other options are available using the command line:
 
+
     -h, --help            show this help message and exit
     --candidate-pool-filename CANDIDATE_POOL_FILENAME
                           Filename for candidate pool. The format of the file is
                           that candidate items are represented one item per
-                          line.
+                          line. (default: None)
     --loss-executable LOSS_EXECUTABLE
                           Executable command which will return loss on teaching
                           set. Executable must take two command-line arguments,
                           an `inputfilename` containing the teaching set to
                           train the learner on, one item per line, and an
                           `outputfilename` where the loss should be written
+                          (default: None)
     --output-filename OUTPUT_FILENAME
                           Output filename where the best found teaching set and
                           loss are written at the search procedure's termination
+                          (default: None)
     --teaching-set-size TEACHING_SET_SIZE
-                          Size of teaching set to return.
+                          Size of teaching set to return. (default: None)
     --search-budget SEARCH_BUDGET
                           Budget of number of models to fit. This is the number
-                          of times `loss-executable` will be invoked.
+                          of times `loss-executable` will be invoked. (default:
+                          None)
     --proposals PROPOSALS
                           Number of proposals to consider at each search
                           iteration. A tuning parameter for 'greedy-add' and
-                          'random-index-greedy-swap' algorithms
-    --seed SEED           Set random seed to achieve consistency across
-                          iterations.
+                          'random-index-greedy-swap' algorithms (default: None)
+    --seed SEED           Set random seed to achieve reproducibility. (default:
+                          None)
     --algorithm {greedy-add,random-index-greedy-swap,uniform}
-                          Choice of search algorithm
+                          Choice of search algorithm (default: greedy-add)
     --initial-teaching-set INITIAL_TEACHING_SET
-                          A comma-separated zero-best list of indices to fix
-                          initial teaching set. Used in 'random-index-greedy-
-                          swap' and 'uniform' algorithms.
+                          A comma-separated list of zero-based indices to fix
+                          the initial teaching set. Used in 'random-index-
+                          greedy-swap' and 'uniform' algorithms (e.g.,
+                          --initial-teaching-set 53,17 ). (default: None)
     --log LOG             Filename of log file, where interim results are logged
                           as comma-separated values (CSV). The three colums of
-                          the output represent the iteration of the search
-                          budget, the loss of the teaching set, and space-
-                          separated indices into the lines of the candidate pool
-                          file.
+                          the output represent the iteration number, the loss of
+                          the trained model for that iteration, and the teaching
+                          set for that iterations. (default: None)
 
 
 ## FAQ
