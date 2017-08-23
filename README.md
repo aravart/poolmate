@@ -16,6 +16,10 @@ To wit, typical usage requires from the client:
 * A command which `poolmate` can execute to obtain the loss of a teaching set
 * Parameter settings for the search algorithm
 
+All methods support both teaching sets and teaching sequences. That is,
+duplication and order of teaching items will be significant if the provided
+learner treats them as significant.
+
 For the details, see [Usage](#usage).
 
 For an introduction to machine teaching,

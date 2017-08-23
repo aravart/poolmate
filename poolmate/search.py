@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from options import write_options
 import pandas as pd
 import numpy as np
 import math
@@ -227,6 +228,9 @@ class Runner(object):
             log = open(options.log, 'w')
         else:
             log = options.log
+        if log:
+            write_options(options, log)
+
         rng = range(options.search_budget) if options.no_progress else tqdm.trange(options.search_budget)
         for i in rng:
             s = algorithm.next_fit_request()

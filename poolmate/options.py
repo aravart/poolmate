@@ -27,3 +27,12 @@ class OptionsBuilder(object):
         for name, func in self.derived_options:
             options[name] = func(options)
         return options
+
+
+def write_options(options, log):
+    options = dict(vars(options))
+    excluded = ['rs', 'no_progress', 'num_train']
+    print options
+    for key in options:
+        if key not in excluded:
+            log.write("%s=%s\n" % (key, options[key]))
