@@ -211,9 +211,17 @@ necessarily reflect the views of the National Science Foundation.
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Authors
+## Author
 
 * Ara Vartanian (<aravart@cs.wisc.edu>)
+
+## Collaborators
+
 * Scott Alfeld (<salfeld@amherst.edu>)
 * Ayon Sen  (<ayonsn@cs.wisc.edu>)
+* Jerry Zhu (<jerryzhu@cs.wisc.edu>)
+
+## Contacts
+
+* Ara Vartanian (<aravart@cs.wisc.edu>)
 * Jerry Zhu (<jerryzhu@cs.wisc.edu>)
